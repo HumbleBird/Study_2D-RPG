@@ -70,7 +70,7 @@ public class MyPlayerController : PlayerController
         {
             State = CreatureState.Skill;
             //_coSkill = StartCoroutine("CoStartPunch");
-            _coSkill = StartCoroutine("CoStartShootArrow");
+            _coSkill = StartCoroutine(CoStartShootArrow());
         }
     }
 

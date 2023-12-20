@@ -109,7 +109,7 @@ public class PlayerController : CreatureController
 
 
 
-	IEnumerator CoStartPunch()
+    protected IEnumerator CoStartPunch()
 	{
 		// 피격 판정
 		GameObject go = Managers.Object.Find(GetFrontCellPos());
@@ -127,7 +127,7 @@ public class PlayerController : CreatureController
 		_coSkill = null;
 	}
 
-	IEnumerator CoStartShootArrow()
+    protected IEnumerator CoStartShootArrow()
 	{
 		GameObject go = Managers.Resource.Instantiate("Creature/Arrow");
 		ArrowController ac = go.GetComponent<ArrowController>();
