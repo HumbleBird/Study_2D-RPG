@@ -146,6 +146,12 @@ namespace Server.Game
                 Broadcast(skill);
 
                 // TODO 데미지
+                Vector2Int skillPos = player.GetFrontCellPos(info.PosInfo.Movedir);
+                Player target = _map.Find(skillPos);
+                if(target != null)
+                {
+                    Console.WriteLine("Hit Player !");
+                }
             }
         }
 

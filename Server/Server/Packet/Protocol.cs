@@ -42,9 +42,9 @@ namespace Google.Protobuf.Protocol {
             "U19MRUFWRV9HQU1FEAESCwoHU19TUEFXThACEg0KCVNfREVTUEFXThADEgoK",
             "BkNfTU9WRRAEEgoKBlNfTU9WRRAFEgsKB0NfU0tJTEwQBhILCgdTX1NLSUxM",
             "EAcqOgoNQ3JlYXR1cmVTdGF0ZRIICgRJRExFEAASCgoGTU9WSU5HEAESCQoF",
-            "U0tJTEwQAhIICgRERUFEEAMqOgoHTW92ZURpchIICgROT05FEAASBgoCVVAQ",
-            "ARIICgRET1dOEAISCAoETEVGVBADEgkKBVJJR0hUEARCG6oCGEdvb2dsZS5Q",
-            "cm90b2J1Zi5Qcm90b2NvbGIGcHJvdG8z"));
+            "U0tJTEwQAhIICgRERUFEEAMqMAoHTW92ZURpchIGCgJVUBAAEggKBERPV04Q",
+            "ARIICgRMRUZUEAISCQoFUklHSFQQA0IbqgIYR29vZ2xlLlByb3RvYnVmLlBy",
+            "b3RvY29sYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Google.Protobuf.Protocol.MsgId), typeof(global::Google.Protobuf.Protocol.CreatureState), typeof(global::Google.Protobuf.Protocol.MoveDir), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -84,11 +84,10 @@ namespace Google.Protobuf.Protocol {
   }
 
   public enum MoveDir {
-    [pbr::OriginalName("NONE")] None = 0,
-    [pbr::OriginalName("UP")] Up = 1,
-    [pbr::OriginalName("DOWN")] Down = 2,
-    [pbr::OriginalName("LEFT")] Left = 3,
-    [pbr::OriginalName("RIGHT")] Right = 4,
+    [pbr::OriginalName("UP")] Up = 0,
+    [pbr::OriginalName("DOWN")] Down = 1,
+    [pbr::OriginalName("LEFT")] Left = 2,
+    [pbr::OriginalName("RIGHT")] Right = 3,
   }
 
   #endregion
@@ -1410,7 +1409,7 @@ namespace Google.Protobuf.Protocol {
 
     /// <summary>Field number for the "movedir" field.</summary>
     public const int MovedirFieldNumber = 2;
-    private global::Google.Protobuf.Protocol.MoveDir movedir_ = global::Google.Protobuf.Protocol.MoveDir.None;
+    private global::Google.Protobuf.Protocol.MoveDir movedir_ = global::Google.Protobuf.Protocol.MoveDir.Up;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Google.Protobuf.Protocol.MoveDir Movedir {
       get { return movedir_; }
@@ -1465,7 +1464,7 @@ namespace Google.Protobuf.Protocol {
     public override int GetHashCode() {
       int hash = 1;
       if (State != global::Google.Protobuf.Protocol.CreatureState.Idle) hash ^= State.GetHashCode();
-      if (Movedir != global::Google.Protobuf.Protocol.MoveDir.None) hash ^= Movedir.GetHashCode();
+      if (Movedir != global::Google.Protobuf.Protocol.MoveDir.Up) hash ^= Movedir.GetHashCode();
       if (PosX != 0) hash ^= PosX.GetHashCode();
       if (PosY != 0) hash ^= PosY.GetHashCode();
       if (_unknownFields != null) {
@@ -1485,7 +1484,7 @@ namespace Google.Protobuf.Protocol {
         output.WriteRawTag(8);
         output.WriteEnum((int) State);
       }
-      if (Movedir != global::Google.Protobuf.Protocol.MoveDir.None) {
+      if (Movedir != global::Google.Protobuf.Protocol.MoveDir.Up) {
         output.WriteRawTag(16);
         output.WriteEnum((int) Movedir);
       }
@@ -1508,7 +1507,7 @@ namespace Google.Protobuf.Protocol {
       if (State != global::Google.Protobuf.Protocol.CreatureState.Idle) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) State);
       }
-      if (Movedir != global::Google.Protobuf.Protocol.MoveDir.None) {
+      if (Movedir != global::Google.Protobuf.Protocol.MoveDir.Up) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Movedir);
       }
       if (PosX != 0) {
@@ -1531,7 +1530,7 @@ namespace Google.Protobuf.Protocol {
       if (other.State != global::Google.Protobuf.Protocol.CreatureState.Idle) {
         State = other.State;
       }
-      if (other.Movedir != global::Google.Protobuf.Protocol.MoveDir.None) {
+      if (other.Movedir != global::Google.Protobuf.Protocol.MoveDir.Up) {
         Movedir = other.Movedir;
       }
       if (other.PosX != 0) {

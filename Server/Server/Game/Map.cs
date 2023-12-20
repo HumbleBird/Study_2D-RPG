@@ -4,6 +4,7 @@ using System.Text;
 using System.IO;
 using ServerCore;
 using Google.Protobuf.Protocol;
+using System.Numerics;
 
 namespace Server.Game
 {
@@ -74,12 +75,50 @@ namespace Server.Game
             return !_collision[y, x] && (!checkObjects|| _players[y,x] == null);
         }
 
+        public Player Find(Vector2Int cellPos)
+        {
+            if (cellPos.x < MinX || cellPos.x > MaxX)
+                return null;
+            if (cellPos.y < MinY || cellPos.y > MaxY)
+                return null;
+
+            int x = cellPos.x - MinX;
+            int y = MaxY - cellPos.y;
+            return _players[y, x];
+
+
+        }
+
         public bool ApplyMove(Player player, Vector2Int dest)
         {
             PositionInfo posInfo = player.Info.PosInfo;
 
+            if (posInfo.PosX < MinX || posInfo.PosX > MaxX)
+                return false;
+            if (posInfo.PosY < MinY || posInfo.PosY > MaxY)
+                return false;
+
             if (CanGo(dest, true) == false)
                 return false;
+
+            // 내가 있던 위치 null로 바꿔치기
+            {
+                int x = posInfo.PosX - MinX;
+                int y = MaxY - posInfo.PosY;
+                if (_players[y, x] == player)
+                    _players[y, x] = null;
+            }
+
+            // 플레이어 위치 바꿔주기
+            {
+                int x = dest.x - MinX;
+                int y = MaxY - dest.y;
+                _players[y, x] = player;
+            }
+
+            // 실제로 좌표 이동
+            posInfo.PosX = dest.x;
+            posInfo.PosY = dest.y;
 
             return true;
         }
@@ -111,6 +150,8 @@ namespace Server.Game
                 }
             }
         }
+
+
 
         #region A* PathFinding
 
