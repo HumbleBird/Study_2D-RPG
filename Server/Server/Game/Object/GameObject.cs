@@ -113,6 +113,9 @@ namespace Server.Game
 
         public virtual void OnDamaged(GameObject attacker, int damage)
         {
+            if (Room == null)
+                return;
+
             Stat.Hp -= damage;
 
             if (Stat.Hp <= 0)
@@ -129,6 +132,9 @@ namespace Server.Game
 
         public virtual void OnDead(GameObject attacker)
         {
+            if (Room == null)
+                return;
+
             S_Die diePacket = new S_Die();
             diePacket.ObjectId = Id;
             diePacket.AttackerId = attacker.Id;
@@ -142,6 +148,7 @@ namespace Server.Game
             PosInfo.Movedir = MoveDir.Down;
             PosInfo.PosX = 0;
             PosInfo.PosY = 0;
+
 
             room.EnterGame(this);
         }
