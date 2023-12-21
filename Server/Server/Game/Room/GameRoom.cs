@@ -27,14 +27,9 @@ namespace Server.Game
             monster.CellPos = new Vector2Int(5, 5);
             EnterGame(monster);
 
-            TestTimer();
+            
         }
 
-        void TestTimer()
-        {
-            Console.WriteLine("TestTimer");
-            PushAfter(100, TestTimer);
-        }
 
         public void Update()
         {
@@ -147,8 +142,8 @@ namespace Server.Game
                 if (_monsters.Remove(objectId, out monster) == false)
                     return;
 
-                monster.Room = null;
                 Map.ApplyLeave(monster);
+                monster.Room = null;
             }
             else if (type == GameObjectType.Projectile)
             {
