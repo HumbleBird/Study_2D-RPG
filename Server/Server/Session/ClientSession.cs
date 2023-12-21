@@ -9,6 +9,7 @@ using System.Net;
 using Google.Protobuf.Protocol;
 using Google.Protobuf;
 using Server.Game;
+using Server.Data;
 
 namespace Server
 {
@@ -44,6 +45,14 @@ namespace Server
 				MyPlayer.Info.PosInfo.Movedir = MoveDir.Down;
 				MyPlayer.Info.PosInfo.PosX = 0;
 				MyPlayer.Info.PosInfo.PosY = 0;
+
+				StatInfo stat = null;
+				DataManager.StatDict.TryGetValue(1, out stat);
+				MyPlayer.Stat.MergeFrom(stat);
+
+
+
+
 				MyPlayer.Session = this;
 			}
 
