@@ -13,12 +13,15 @@ using Server.Data;
 
 namespace Server
 {
-    public class ClientSession : PacketSession
-	{
-		public Player MyPlayer {  get;  set; }
+    public partial class ClientSession : PacketSession
+    {
+        public PlayerServerState ServerSetate { get; private set; } = PlayerServerState.ServerStateLogin;
+
+        public Player MyPlayer {  get;  set; }
 		public int SessionId { get; set; }
 
-		public void Send(IMessage packet)
+        #region Network
+        public void Send(IMessage packet)
 		{
 			string msgName = packet.Descriptor.Name.Replace("_", string.Empty);
 
@@ -87,5 +90,7 @@ namespace Server
 		{
 			//Console.WriteLine($"Transferred bytes: {numOfBytes}");
 		}
-	}
+
+        #endregion
+    }
 }
