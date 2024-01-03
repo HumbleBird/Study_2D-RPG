@@ -9,7 +9,7 @@ namespace Server.Data
     public class ServerConfig
     {
         public string dataPath;
-
+        public string connectionstring;
     }
 
 
