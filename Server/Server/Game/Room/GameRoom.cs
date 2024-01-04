@@ -127,6 +127,7 @@ namespace Server.Game
                 if (_players.Remove(objectId, out player) == false)
                     return;
 
+                player.OnLeaveGame();
                 Map.ApplyLeave(player);
                 player.Room = null;
 
