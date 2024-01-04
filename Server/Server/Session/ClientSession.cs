@@ -15,7 +15,7 @@ namespace Server
 {
     public partial class ClientSession : PacketSession
     {
-        public PlayerServerState ServerSetate { get; private set; } = PlayerServerState.ServerStateLogin;
+        public PlayerServerState ServerState { get; private set; } = PlayerServerState.ServerStateLogin;
 
         public Player MyPlayer {  get;  set; }
 		public int SessionId { get; set; }
@@ -47,28 +47,7 @@ namespace Server
 			}
 
 
-			// TODO 로비에서 캐릭터 선택
-			MyPlayer = ObjectManager.Instance.Add<Player>();
-			{
-				MyPlayer.Info.Name = $"Player_{MyPlayer.Info.ObjectId}";
-				MyPlayer.Info.PosInfo.State = CreatureState.Idle;
-				MyPlayer.Info.PosInfo.Movedir = MoveDir.Down;
-				MyPlayer.Info.PosInfo.PosX = 0;
-				MyPlayer.Info.PosInfo.PosY = 0;
 
-				StatInfo stat = null;
-				DataManager.StatDict.TryGetValue(1, out stat);
-				MyPlayer.Stat.MergeFrom(stat);
-
-
-
-
-				MyPlayer.Session = this;
-			}
-
-			// TODO : 입장 요청 들어오면 
-            GameRoom room = RoomManager.Instance.Find(1);
-            room.Push(room.EnterGame, MyPlayer);
         }
 
 		public override void OnRecvPacket(ArraySegment<byte> buffer)

@@ -60,6 +60,7 @@ class PacketHandler
         C_EnterGame enterGamePacket = packet as C_EnterGame;
         ClientSession clientSession = session as ClientSession;
 
+        clientSession.HandleEnterGame(enterGamePacket);
     }
 
     public static void C_CreatePlayerHandler(PacketSession session, IMessage packet)
@@ -67,5 +68,6 @@ class PacketHandler
         C_CreatePlayer createPlayerPacket = packet as C_CreatePlayer;
         ClientSession clientSession = session as ClientSession;
 
+        clientSession.HandleCreatePlayer(createPlayerPacket);
     }
 }

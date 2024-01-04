@@ -61,10 +61,10 @@ namespace Google.Protobuf.Protocol {
             "CgRMRUZUEAISCQoFUklHSFQQAypDCg5HYW1lT2JqZWN0VHlwZRIICgROT05F",
             "EAASCgoGUExBWUVSEAESCwoHTU9OU1RFUhACEg4KClBST0pFQ1RJTEUQAypB",
             "CglTa2lsbFR5cGUSDgoKU0tJTExfTk9ORRAAEg4KClNLSUxMX0FVVE8QARIU",
-            "ChBTS0lMTF9QUk9KRUNUSUxFEAIqWQoRUGxheWVyU2VydmVyU3RhdGUSFgoS",
-            "U0VSVkVSX1NUQVRFX0xPR0lOEAASFQoRU0VSVkVSX1NUQVRFX0xPQlkQARIV",
-            "ChFTRVJWRVJfU1RBVEVfR0FNRRACQhuqAhhHb29nbGUuUHJvdG9idWYuUHJv",
-            "dG9jb2xiBnByb3RvMw=="));
+            "ChBTS0lMTF9QUk9KRUNUSUxFEAIqWgoRUGxheWVyU2VydmVyU3RhdGUSFgoS",
+            "U0VSVkVSX1NUQVRFX0xPR0lOEAASFgoSU0VSVkVSX1NUQVRFX0xPQkJZEAES",
+            "FQoRU0VSVkVSX1NUQVRFX0dBTUUQAkIbqgIYR29vZ2xlLlByb3RvYnVmLlBy",
+            "b3RvY29sYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Google.Protobuf.Protocol.MsgId), typeof(global::Google.Protobuf.Protocol.CreatureState), typeof(global::Google.Protobuf.Protocol.MoveDir), typeof(global::Google.Protobuf.Protocol.GameObjectType), typeof(global::Google.Protobuf.Protocol.SkillType), typeof(global::Google.Protobuf.Protocol.PlayerServerState), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -143,7 +143,7 @@ namespace Google.Protobuf.Protocol {
 
   public enum PlayerServerState {
     [pbr::OriginalName("SERVER_STATE_LOGIN")] ServerStateLogin = 0,
-    [pbr::OriginalName("SERVER_STATE_LOBY")] ServerStateLoby = 1,
+    [pbr::OriginalName("SERVER_STATE_LOBBY")] ServerStateLobby = 1,
     [pbr::OriginalName("SERVER_STATE_GAME")] ServerStateGame = 2,
   }
 
