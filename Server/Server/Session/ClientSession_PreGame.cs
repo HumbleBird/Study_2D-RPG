@@ -108,6 +108,28 @@ namespace Server
                 MyPlayer.Info.PosInfo.PosY = 0;
                 MyPlayer.Stat.MergeFrom(playerInfo.StatInfo);
                 MyPlayer.Session = this;
+
+                S_ItemList itemListPacket = new S_ItemList();
+
+                // 아이템 목록을 갖고 온다
+                using (AppDbContext  db = new AppDbContext())
+                {
+                    List<ItemDb> items = db.Items
+                        .Where(i => i.OwnerDbId == playerInfo.PlayerDbId)
+                        .ToList();
+
+                    foreach (ItemDb item in items)
+                    {
+                        // 인벤토리
+                        ItemInfo info = new ItemInfo();
+                        itemListPacket.Items.Add(info);
+                    }
+
+                    // 클라한테도 아이템 목록을 전달
+
+                }
+
+                Send(itemListPacket);
             }
 
             ServerState = PlayerServerState.ServerStateGame;
