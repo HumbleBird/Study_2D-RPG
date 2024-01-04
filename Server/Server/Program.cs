@@ -54,7 +54,7 @@ namespace Server
 
 			while (true)
 			{
-				Thread.Sleep(100);
+				DbTransaction.Instance.Flush();
 			}
 		}
 	}

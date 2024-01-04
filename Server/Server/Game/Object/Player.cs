@@ -30,17 +30,7 @@ namespace Server.Game
 
         public void OnLeaveGame()
         {
-            // DB 연동
-            using (AppDbContext db = new AppDbContext())
-            {
-                PlayerDb playerDb = new PlayerDb();
-                playerDb.PlayerDbId = PlayerDbId;
-                playerDb.Hp = Stat.Hp;
-
-                db.Entry(playerDb).State = EntityState.Unchanged;
-                db.Entry(playerDb).Property(nameof(PlayerDb.Hp)).IsModified = true;
-                db.SaveChangesEx();
-            }
+            DbTransaction.SavePlayerStatus_Step1(this, Room);
         }
     }
 }
