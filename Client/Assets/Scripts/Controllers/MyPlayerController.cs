@@ -1,4 +1,4 @@
-using Google.Protobuf.Protocol;
+Ôªøusing Google.Protobuf.Protocol;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,144 +6,134 @@ using static Define;
 
 public class MyPlayerController : PlayerController
 {
-    bool _moveKeyPressed = false;
+	bool _moveKeyPressed = false;
 
-    protected override void Init()
-    {
-        base.Init();
-    }
+	protected override void Init()
+	{
+		base.Init();
+	}
 
-    protected override void UpdateController()
-    {
-        switch (State)
-        {
-            case CreatureState.Idle:
-                GetDirInput();
-                break;
-            case CreatureState.Moving:
-                GetDirInput();
-                break;
-        }
+	protected override void UpdateController()
+	{
+		switch (State)
+		{
+			case CreatureState.Idle:
+				GetDirInput();
+				break;
+			case CreatureState.Moving:
+				GetDirInput();
+				break;
+		}
 
-        base.UpdateController();
-    }
+		base.UpdateController();
+	}
 
-    // ≈∞∫∏µÂ ¿‘∑¬
-    void GetDirInput()
-    {
-        _moveKeyPressed = true;
+	protected override void UpdateIdle()
+	{
+		// Ïù¥Îèô ÏÉÅÌÉúÎ°ú Í∞àÏßÄ ÌôïÏù∏
+		if (_moveKeyPressed)
+		{
+			State = CreatureState.Moving;
+			return;
+		}
 
-        if (Input.GetKey(KeyCode.W))
-        {
-            Dir = MoveDir.Up;
-        }
-        else if (Input.GetKey(KeyCode.S))
-        {
-            Dir = MoveDir.Down;
-        }
-        else if (Input.GetKey(KeyCode.A))
-        {
-            Dir = MoveDir.Left;
-        }
-        else if (Input.GetKey(KeyCode.D))
-        {
-            Dir = MoveDir.Right;
-        }
-        else
-        {
-            _moveKeyPressed = false;
-        }
-    }
+		if (_coSkillCooltime == null && Input.GetKey(KeyCode.Space))
+		{
+			Debug.Log("Skill !");
 
-    void LateUpdate()
-    {
-        Camera.main.transform.position = new Vector3(transform.position.x, transform.position.y, -10);
-    }
+			C_Skill skill = new C_Skill() { Info = new SkillInfo() };
+			skill.Info.SkillId = 2;
+			Managers.Network.Send(skill);
 
-    protected override void UpdateIdle()
-    {
-        // ¿Ãµø ªÛ≈¬∑Œ ∞•¡ˆ »Æ¿Œ
-        if (_moveKeyPressed)
-        {
-            State = CreatureState.Moving;
-            return;
-        }
+			_coSkillCooltime = StartCoroutine("CoInputCooltime", 0.2f);
+		}
+	}
 
-        // Ω∫≈≥ ªÛ≈¬∑Œ ∞•¡ˆ »Æ¿Œ
-        if (Input.GetKey(KeyCode.Space))
-        {
-            Debug.Log("Skill !");
+	Coroutine _coSkillCooltime;
+	IEnumerator CoInputCooltime(float time)
+	{
+		yield return new WaitForSeconds(time);
+		_coSkillCooltime = null;
+	}
 
-            C_Skill skill = new C_Skill() { Info = new SkillInfo() };
-            skill.Info.SkillId = 2;
-            Managers.Network.Send(skill);
+	void LateUpdate()
+	{
+		Camera.main.transform.position = new Vector3(transform.position.x, transform.position.y, -10);
+	}
 
-            _coSkillCoolTime = StartCoroutine(CoInputCoolTime(0.2f));
-        }
-    }
+	// ÌÇ§Î≥¥Îìú ÏûÖÎ†•
+	void GetDirInput()
+	{
+		_moveKeyPressed = true;
 
-    Coroutine _coSkillCoolTime;
-    IEnumerator CoInputCoolTime(float time)
-    {
-        yield return new WaitForSeconds(time);
-        _coSkillCoolTime = null;
-    }
+		if (Input.GetKey(KeyCode.W))
+		{
+			Dir = MoveDir.Up;
+		}
+		else if (Input.GetKey(KeyCode.S))
+		{
+			Dir = MoveDir.Down;
+		}
+		else if (Input.GetKey(KeyCode.A))
+		{
+			Dir = MoveDir.Left;
+		}
+		else if (Input.GetKey(KeyCode.D))
+		{
+			Dir = MoveDir.Right;
+		}
+		else
+		{
+			_moveKeyPressed = false;
+		}
+	}
 
-    protected override void MoveToNextPos()
-    {
-        if (_moveKeyPressed== false)
-        {
-            State = CreatureState.Idle;
-            CheckUpdatedFlag();
-            return;
-        }
+	protected override void MoveToNextPos()
+	{
+		if (_moveKeyPressed == false)
+		{
+			State = CreatureState.Idle;
+			CheckUpdatedFlag();
+			return;
+		}
 
-        Vector3Int destPos = CellPos;
+		Vector3Int destPos = CellPos;
 
-        switch (Dir)
-        {
-            case MoveDir.Up:
-                destPos += Vector3Int.up;
-                break;
-            case MoveDir.Down:
-                destPos += Vector3Int.down;
-                break;
-            case MoveDir.Left:
-                destPos += Vector3Int.left;
-                break;
-            case MoveDir.Right:
-                destPos += Vector3Int.right;
-                break;
-        }
+		switch (Dir)
+		{
+			case MoveDir.Up:
+				destPos += Vector3Int.up;
+				break;
+			case MoveDir.Down:
+				destPos += Vector3Int.down;
+				break;
+			case MoveDir.Left:
+				destPos += Vector3Int.left;
+				break;
+			case MoveDir.Right:
+				destPos += Vector3Int.right;
+				break;
+		}
 
-        if (Managers.Map.CanGo(destPos))
-        {
-            if (Managers.Object.FindCreature(destPos) == null)
-            {
-                CellPos = destPos;
-            }
-        }
+		if (Managers.Map.CanGo(destPos))
+		{
+			if (Managers.Object.FindCreature(destPos) == null)
+			{
+				CellPos = destPos;
+			}
+		}
 
-        CheckUpdatedFlag();
-    }
+		CheckUpdatedFlag();
+	}
 
-    protected override void CheckUpdatedFlag()
-    {
-        if (_updated)
-        {
-            C_Move movePacket = new C_Move();
-            movePacket.PosInfo = PosInfo;
-            Managers.Network.Send(movePacket);
-            _updated = false;
-        }
-    }
-
-
-
-
-
-
-
-
-
+	protected override void CheckUpdatedFlag()
+	{
+		if (_updated)
+		{
+			C_Move movePacket = new C_Move();
+			movePacket.PosInfo = PosInfo;
+			Managers.Network.Send(movePacket);
+			_updated = false;
+		}
+	}
 }

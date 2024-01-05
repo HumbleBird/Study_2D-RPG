@@ -7,13 +7,12 @@ using static Define;
 public class PlayerController : CreatureController
 {
 	protected Coroutine _coSkill;
-    protected bool _rangedSkill = false;
+	protected bool _rangedSkill = false;
 
 	protected override void Init()
 	{
 		base.Init();
-
-    }
+	}
 
 	protected override void UpdateAnimation()
 	{
@@ -93,32 +92,28 @@ public class PlayerController : CreatureController
 	}
 
 	protected override void UpdateController()
-	{
-		
+	{		
 		base.UpdateController();
 	}
 
-
-
-
 	public override void UseSkill(int skillId)
 	{
-		if(skillId == 1)
+		if (skillId == 1)
 		{
-			_coSkill = StartCoroutine(CoStartPunch());
-        }
-        else if (skillId == 2)
-        {
-            _coSkill = StartCoroutine(CoStartShootArrow());
-        }
-    }
+			_coSkill = StartCoroutine("CoStartPunch");
+		}
+		else if (skillId == 2)
+		{
+			_coSkill = StartCoroutine("CoStartShootArrow");
+		}
+	}
 
 	protected virtual void CheckUpdatedFlag()
-    {
-       
-    }
+	{
 
-    protected IEnumerator CoStartPunch()
+	}
+
+	IEnumerator CoStartPunch()
 	{
 		// 대기 시간
 		_rangedSkill = false;
@@ -127,21 +122,20 @@ public class PlayerController : CreatureController
 		State = CreatureState.Idle;
 		_coSkill = null;
 		CheckUpdatedFlag();
+	}
 
-    }
-
-    protected IEnumerator CoStartShootArrow()
+	IEnumerator CoStartShootArrow()
 	{
 		// 대기 시간
 		_rangedSkill = true;
 		State = CreatureState.Skill;
 		yield return new WaitForSeconds(0.3f);
-        State = CreatureState.Idle;
+		State = CreatureState.Idle;
 		_coSkill = null;
 		CheckUpdatedFlag();
-    }
+	}
 
-    public override void OnDamaged()
+	public override void OnDamaged()
 	{
 		Debug.Log("Player HIT !");
 	}
