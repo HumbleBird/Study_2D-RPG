@@ -20,8 +20,7 @@ namespace Server
 	class Program
 	{
 		static Listener _listener = new Listener();
-
-		static List<System.Timers.Timer>  _timers = new	List<System.Timers.Timer> ();
+		static List<System.Timers.Timer> _timers = new List<System.Timers.Timer>();
 
 		static void TickRoom(GameRoom room, int tick = 100)
 		{
@@ -30,6 +29,8 @@ namespace Server
 			timer.Elapsed += ((s, e) => { room.Update(); });
 			timer.AutoReset = true;
 			timer.Enabled = true;
+
+			_timers.Add(timer);
 		}
 
 		static void Main(string[] args)
@@ -52,6 +53,7 @@ namespace Server
 			//FlushRoom();
 			//JobTimer.Instance.Push(FlushRoom);
 
+			// TODO
 			while (true)
 			{
 				DbTransaction.Instance.Flush();

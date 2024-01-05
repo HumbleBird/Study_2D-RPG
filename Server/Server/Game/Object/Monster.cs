@@ -1,237 +1,232 @@
 ﻿using Google.Protobuf.Protocol;
 using Server.Data;
+using Server.DB;
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
-using System.Numerics;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
-using System.Transactions;
 
 namespace Server.Game
 {
-    public class Monster : GameObject
-    {
-        public int TemplatedId { get; private set; }
-        public Monster()
-        {
-            ObjectType = GameObjectType.Monster;
-        }
+	public class Monster : GameObject
+	{
+		public int TemplateId { get; private set; }
 
-        public void Init(int templatedId)
-        {
-            TemplatedId = templatedId;
+		public Monster()
+		{
+			ObjectType = GameObjectType.Monster;
+		}
 
-            MonsterData monsterData = null;
-            DataManager.MonsterDict.TryGetValue(TemplatedId, out monsterData);
-            Stat.MergeFrom(monsterData.stat);
-            Stat.Hp = monsterData.stat.MaxHp;
-            State = CreatureState.Idle;
-        }
+		public void Init(int templateId)
+		{
+			TemplateId = templateId;
 
-        // FSM
-        public override void Update()
-        {
-            switch (State)
-            {
-                case CreatureState.Idle:
-                    UpdateIdle();
-                    break;
-                case CreatureState.Moving:
-                    UpdateMoving();
-                    break;
-                case CreatureState.Skill:
-                    UpdateSkill();
-                    break;
-                case CreatureState.Dead:
-                    UpdateDead();
-                    break;
-            }
-        }
+			MonsterData monsterData = null;
+			DataManager.MonsterDict.TryGetValue(TemplateId, out monsterData);
+			Stat.MergeFrom(monsterData.stat);
+			Stat.Hp = monsterData.stat.MaxHp;
+			State = CreatureState.Idle;
+		}
 
-        Player _target;
-        int _searchCellDist = 10;
-        int _chaseCellDist = 20;
+		// FSM (Finite State Machine)
+		public override void Update()
+		{
+			switch (State)
+			{
+				case CreatureState.Idle:
+					UpdateIdle();
+					break;
+				case CreatureState.Moving:
+					UpdateMoving();
+					break;
+				case CreatureState.Skill:
+					UpdateSkill();
+					break;
+				case CreatureState.Dead:
+					UpdateDead();
+					break;
+			}
+		}
 
-        long _nextSearchTick = 0;
-        protected virtual void UpdateIdle()
-        {
-            if (_nextSearchTick > Environment.TickCount64)
-                return;
+		Player _target;
+		int _searchCellDist = 10;
+		int _chaseCellDist = 20;
 
-            _nextSearchTick = Environment.TickCount64 + 1000;
+		long _nextSearchTick = 0;
+		protected virtual void UpdateIdle()
+		{
+			if (_nextSearchTick > Environment.TickCount64)
+				return;
+			_nextSearchTick = Environment.TickCount64 + 1000;
 
-            Player target = Room.FindPlayer(p =>
-            {
-                Vector2Int dir = p.CellPos - CellPos;
-                return dir.cellDistFromZero <= _searchCellDist;
-            });
+			Player target = Room.FindPlayer(p =>
+			{
+				Vector2Int dir = p.CellPos - CellPos;
+				return dir.cellDistFromZero <= _searchCellDist;
+			});
 
-            if (target == null)
-                return;
+			if (target == null)
+				return;
 
-            _target = target;
-            State = CreatureState.Moving;
+			_target = target;
+			State = CreatureState.Moving;
+		}
 
-        }
+		int _skillRange = 1;
+		long _nextMoveTick = 0;
+		protected virtual void UpdateMoving()
+		{
+			if (_nextMoveTick > Environment.TickCount64)
+				return;
+			int moveTick = (int)(1000 / Speed);
+			_nextMoveTick = Environment.TickCount64 + moveTick;
 
-        int _skillRange = 1;
-        long _nextMoveTick = 0;
-        protected virtual void UpdateMoving()
-        {
-            if (_nextMoveTick > Environment.TickCount64)
-                return;
+			if (_target == null || _target.Room != Room)
+			{
+				_target = null;
+				State = CreatureState.Idle;
+				BroadcastMove();
+				return;
+			}
 
-            int moveTick = (int)(1000 / Speed);
-            _nextMoveTick = Environment.TickCount64 + moveTick;
+			Vector2Int dir = _target.CellPos - CellPos;
+			int dist = dir.cellDistFromZero;
+			if (dist == 0 || dist > _chaseCellDist)
+			{
+				_target = null;
+				State = CreatureState.Idle;
+				BroadcastMove();
+				return;
+			}
 
-            if (_target == null || _target.Room != Room)
-            {
-                _target = null;
-                State = CreatureState.Idle;
-                BroadcastMove();
-                return;
-            }
+			List<Vector2Int> path = Room.Map.FindPath(CellPos, _target.CellPos, checkObjects: false);
+			if (path.Count < 2 || path.Count > _chaseCellDist)
+			{
+				_target = null;
+				State = CreatureState.Idle;
+				BroadcastMove();
+				return;
+			}
 
-            // 거리 체크
-            Vector2Int dir = _target.CellPos - CellPos;
-            int dist = dir.cellDistFromZero;
-            if (dist == 0 || dist > _chaseCellDist)
-            {
-                _target = null;
-                State = CreatureState.Idle;
-                BroadcastMove();
-                return;
-            }
+			// 스킬로 넘어갈지 체크
+			if (dist <= _skillRange && (dir.x == 0 || dir.y == 0))
+			{
+				_coolTick = 0;
+				State = CreatureState.Skill;
+				return;
+			}
 
-            List<Vector2Int> path = Room.Map.FindPath(CellPos, _target.CellPos, checkObjects: false);
-            if (path.Count < 2 || path.Count > _chaseCellDist)
-            {
-                _target = null;
-                State = CreatureState.Idle;
-                BroadcastMove();
-                return;
-            }
+			// 이동
+			Dir = GetDirFromVec(path[1] - CellPos);
+			Room.Map.ApplyMove(this, path[1]);
+			BroadcastMove();
+		}
 
-            // 스킬로 넘어갈지 체크
-            if (dist <= _skillRange && (dir.x == 0 || dir.y == 0))
-            {
-                _coolTick = 0;
-                State = CreatureState.Skill;
-                return;
-            }
+		void BroadcastMove()
+		{
+			// 다른 플레이어한테도 알려준다
+			S_Move movePacket = new S_Move();
+			movePacket.ObjectId = Id;
+			movePacket.PosInfo = PosInfo;
+			Room.Broadcast(movePacket);
+		}
 
-            // 이동
-            Dir = GetDirFromVec(path[1] - CellPos);
-            Room.Map.ApplyMove(this, path[1]);
-            BroadcastMove();
+		long _coolTick = 0;
+		protected virtual void UpdateSkill()
+		{
+			if (_coolTick == 0)
+			{
+				// 유효한 타겟인지
+				if (_target == null || _target.Room != Room)
+				{
+					_target = null;
+					State = CreatureState.Moving;
+					BroadcastMove();
+					return;
+				}
 
-        }
+				// 스킬이 아직 사용 가능한지
+				Vector2Int dir = (_target.CellPos - CellPos);
+				int dist = dir.cellDistFromZero;
+				bool canUseSkill = (dist <= _skillRange && (dir.x == 0 || dir.y == 0));
+				if (canUseSkill == false)
+				{
+					State = CreatureState.Moving;
+					BroadcastMove();
+					return;
+				}
 
-        void BroadcastMove()
-        {
-            // 다른 플레이어한테도 알려준다.
-            S_Move movePacket = new S_Move();
-            movePacket.ObjectId = Id;
-            movePacket.PosInfo = PosInfo;
-            Room.Broadcast(movePacket);
-        }
+				// 타게팅 방향 주시
+				MoveDir lookDir = GetDirFromVec(dir);
+				if (Dir != lookDir)
+				{
+					Dir = lookDir;
+					BroadcastMove();
+				}
 
-        long _coolTick = 0;
-        protected virtual void UpdateSkill()
-        {
-            if (_coolTick == 0)
-            {
-                // 유효한 타켓인지
-                if (_target == null || _target.Room != Room || _target.Hp == 0)
-                {
-                    _target = null;
-                    State = CreatureState.Moving;
-                    BroadcastMove();
-                    return;
-                }
+				Skill skillData = null;
+				DataManager.SkillDict.TryGetValue(1, out skillData);
 
-                // 스킬이 아직 사용 가능한지
-                Vector2Int dir = _target.CellPos - CellPos;
-                int dist = dir.cellDistFromZero;
-                bool canUseSkill = (dist <= _skillRange && (dir.x == 0 || dir.y == 0));
-                if (canUseSkill == false)
-                {
-                    State = CreatureState.Moving;
-                    BroadcastMove();
-                    return;
-                }
+				// 데미지 판정
+				_target.OnDamaged(this, skillData.damage + TotalAttack);
 
-                // 타게팅 방향 주시
-                MoveDir lookDir = GetDirFromVec(dir);
-                if (Dir != lookDir)
-                {
-                    Dir = lookDir;
-                    BroadcastMove();
-                }
+				// 스킬 사용 Broadcast
+				S_Skill skill = new S_Skill() { Info = new SkillInfo() };
+				skill.ObjectId = Id;
+				skill.Info.SkillId = skillData.id;
+				Room.Broadcast(skill);
 
-                Skill skillData = null;
-                DataManager.SkillDict.TryGetValue(1, out skillData);
+				// 스킬 쿨타임 적용
+				int coolTick = (int)(1000 * skillData.cooldown);
+				_coolTick = Environment.TickCount64 + coolTick;
+			}
 
-                // 데미지 판정
-                _target.OnDamaged(this, skillData.damage + Stat.Attack);
+			if (_coolTick > Environment.TickCount64)
+				return;
 
-                // 스킬 사용시 BroadCast
-                S_Skill skill = new S_Skill() { Info = new SkillInfo() };
-                skill.ObjectId = Id;
-                skill.Info.SkillId = skillData.id;
-                Room.Broadcast(skill);
+			_coolTick = 0;
+		}
 
-                // 스킬 쿨타임 적용
-                int coolTick = (int)(1000 * skillData.cooldown);
-                _coolTick = Environment.TickCount64 + coolTick;
-            }
+		protected virtual void UpdateDead()
+		{
 
-            if (_coolTick > Environment.TickCount64)
-                return;
+		}
 
-            _coolTick = 0;
-        }
+		public override void OnDead(GameObject attacker)
+		{
+			base.OnDead(attacker);
 
-        protected virtual void UpdateDead()
-        {
+			GameObject owner = attacker.GetOwner();
+			if (owner.ObjectType == GameObjectType.Player)
+			{
+				RewardData rewardData = GetRandomReward();
+				if (rewardData != null)
+				{
+					Player player = (Player)owner;
+					DbTransaction.RewardPlayer(player, rewardData, Room);
+				}
+			}
+		}
 
-        }
+		RewardData GetRandomReward()
+		{
+			MonsterData monsterData = null;
+			DataManager.MonsterDict.TryGetValue(TemplateId, out monsterData);
 
-        public override void OnDead(GameObject attacker)
-        {
-            base.OnDead(attacker);
+			int rand = new Random().Next(0, 101);
 
-            GameObject owner = attacker.GetOwner();
-            if(owner.ObjectType == GameObjectType.Player)
-            {
-                RewardData rewardData = GetRandomReward();
-                if(rewardData != null)
-                {
-                    Player player = (Player)owner;
-                    Server.DB.DbTransaction.RewardPlayer(player, rewardData, Room);
-                    //player.Inven.Add
-                }
-            }
-        }
+			int sum = 0;
+			foreach (RewardData rewardData in monsterData.rewards)
+			{
+				sum += rewardData.probability;
 
-        RewardData GetRandomReward()
-        {
-            MonsterData monsterData = null;
-            DataManager.MonsterDict.TryGetValue(TemplatedId, out monsterData);
+				if (rand <= sum)
+				{
+					return rewardData;
+				}
+			}
 
-            int rand = new Random().Next(0, 101);
-
-            int sum = 0;
-            foreach (RewardData rewardData in monsterData.rewards)
-            {
-                sum += rewardData.probability;
-                if(rand <= sum)
-                {
-                    return rewardData;
-                }
-            }
-
-            return null;
-        }
-    }
+			return null;
+		}
+	}
 }

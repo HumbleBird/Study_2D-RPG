@@ -48,13 +48,16 @@ namespace Server.Migrations
                     b.Property<int>("Count")
                         .HasColumnType("int");
 
+                    b.Property<bool>("Equipped")
+                        .HasColumnType("bit");
+
                     b.Property<int?>("OwnerDbId")
                         .HasColumnType("int");
 
                     b.Property<int>("Slot")
                         .HasColumnType("int");
 
-                    b.Property<int>("TemplatedId")
+                    b.Property<int>("TemplateId")
                         .HasColumnType("int");
 
                     b.HasKey("ItemDbId");
