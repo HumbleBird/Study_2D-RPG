@@ -16,13 +16,13 @@
   "armors": [
     {
       "id": "100",
-      "name": "�� ����",
+      "name": "뼈 갑옷",
       "armorType": "Armor",
       "defence": "15"
     },
     {
       "id": "101",
-      "name": "�� ����",
+      "name": "뼈 헬멧",
       "armorType": "Helmet",
       "defence": "5"
     }
@@ -30,7 +30,7 @@
   "consumables": [
     {
       "id": "200",
-      "name": "HP ����",
+      "name": "HP 포션",
       "consumableType": "Potion",
       "damage": "10"
     }

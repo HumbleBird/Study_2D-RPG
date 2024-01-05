@@ -118,14 +118,19 @@ namespace Server
                         .Where(i => i.OwnerDbId == playerInfo.PlayerDbId)
                         .ToList();
 
-                    foreach (ItemDb item in items)
+                    foreach (ItemDb itemDb in items)
                     {
-                        // 인벤토리
-                        ItemInfo info = new ItemInfo();
-                        itemListPacket.Items.Add(info);
-                    }
+                        Item item = Item.ItemMakeItem(itemDb);
+                        if(item != null)
+                        {
+                            MyPlayer.Inven.Add(item);
 
-                    // 클라한테도 아이템 목록을 전달
+                            ItemInfo info = new ItemInfo();
+                            info.MergeFrom(item.Info);
+                            itemListPacket.Items.Add(info);
+
+                        }
+                    }
 
                 }
 
