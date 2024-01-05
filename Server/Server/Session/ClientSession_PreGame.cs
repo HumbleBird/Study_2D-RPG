@@ -103,7 +103,7 @@ namespace Server
                 MyPlayer.PlayerDbId = playerInfo.PlayerDbId;
                 MyPlayer.Info.Name = playerInfo.Name;
                 MyPlayer.Info.PosInfo.State = CreatureState.Idle;
-                MyPlayer.Info.PosInfo.Movedir = MoveDir.Down;
+                MyPlayer.Info.PosInfo.MoveDir = MoveDir.Down;
                 MyPlayer.Info.PosInfo.PosX = 0;
                 MyPlayer.Info.PosInfo.PosY = 0;
                 MyPlayer.Stat.MergeFrom(playerInfo.StatInfo);
@@ -120,7 +120,7 @@ namespace Server
 
                     foreach (ItemDb itemDb in items)
                     {
-                        Item item = Item.ItemMakeItem(itemDb);
+                        Item item = Item.MakeItem(itemDb);
                         if(item != null)
                         {
                             MyPlayer.Inven.Add(item);

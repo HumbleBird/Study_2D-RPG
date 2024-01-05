@@ -2,6 +2,7 @@
 using Server.Data;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Numerics;
 using System.Text;
 using System.Transactions;
@@ -10,16 +11,20 @@ namespace Server.Game
 {
     public class Monster : GameObject
     {
+        public int TemplatedId { get; private set; }
         public Monster()
         {
             ObjectType = GameObjectType.Monster;
+        }
 
-            //temp
-            Stat.Level = 1;
-            Stat.Hp = 100;
-            Stat.MaxHp = 100;
-            Stat.Speed = 5.0f;
+        public void Init(int templatedId)
+        {
+            TemplatedId = templatedId;
 
+            MonsterData monsterData = null;
+            DataManager.MonsterDict.TryGetValue(TemplatedId, out monsterData);
+            Stat.MergeFrom(monsterData.stat);
+            Stat.Hp = monsterData.stat.MaxHp;
             State = CreatureState.Idle;
         }
 
@@ -55,9 +60,9 @@ namespace Server.Game
 
             _nextSearchTick = Environment.TickCount64 + 1000;
 
-            Player target= Room.FindPlayer(p =>
+            Player target = Room.FindPlayer(p =>
             {
-                Vector2Int dir =  p.CellPos - CellPos;
+                Vector2Int dir = p.CellPos - CellPos;
                 return dir.cellDistFromZero <= _searchCellDist;
             });
 
@@ -79,7 +84,7 @@ namespace Server.Game
             int moveTick = (int)(1000 / Speed);
             _nextMoveTick = Environment.TickCount64 + moveTick;
 
-            if(_target == null || _target.Room != Room)
+            if (_target == null || _target.Room != Room)
             {
                 _target = null;
                 State = CreatureState.Idle;
@@ -90,7 +95,7 @@ namespace Server.Game
             // 거리 체크
             Vector2Int dir = _target.CellPos - CellPos;
             int dist = dir.cellDistFromZero;
-            if(dist == 0 || dist > _chaseCellDist)
+            if (dist == 0 || dist > _chaseCellDist)
             {
                 _target = null;
                 State = CreatureState.Idle;
@@ -98,8 +103,8 @@ namespace Server.Game
                 return;
             }
 
-            List<Vector2Int> path = Room.Map.FindPath(CellPos, _target.CellPos, checkObjects : false);
-            if(path.Count < 2 || path.Count > _chaseCellDist)
+            List<Vector2Int> path = Room.Map.FindPath(CellPos, _target.CellPos, checkObjects: false);
+            if (path.Count < 2 || path.Count > _chaseCellDist)
             {
                 _target = null;
                 State = CreatureState.Idle;
@@ -108,7 +113,7 @@ namespace Server.Game
             }
 
             // 스킬로 넘어갈지 체크
-            if(dist <= _skillRange && (dir.x == 0 || dir.y == 0))
+            if (dist <= _skillRange && (dir.x == 0 || dir.y == 0))
             {
                 _coolTick = 0;
                 State = CreatureState.Skill;
@@ -121,7 +126,7 @@ namespace Server.Game
             BroadcastMove();
 
         }
-        
+
         void BroadcastMove()
         {
             // 다른 플레이어한테도 알려준다.
@@ -134,14 +139,14 @@ namespace Server.Game
         long _coolTick = 0;
         protected virtual void UpdateSkill()
         {
-            if(_coolTick == 0)
+            if (_coolTick == 0)
             {
                 // 유효한 타켓인지
                 if (_target == null || _target.Room != Room || _target.Hp == 0)
                 {
                     _target = null;
                     State = CreatureState.Moving;
-                    BroadcastMove() ;
+                    BroadcastMove();
                     return;
                 }
 
@@ -158,7 +163,7 @@ namespace Server.Game
 
                 // 타게팅 방향 주시
                 MoveDir lookDir = GetDirFromVec(dir);
-                if(Dir != lookDir)
+                if (Dir != lookDir)
                 {
                     Dir = lookDir;
                     BroadcastMove();
@@ -190,6 +195,43 @@ namespace Server.Game
         protected virtual void UpdateDead()
         {
 
+        }
+
+        public override void OnDead(GameObject attacker)
+        {
+            base.OnDead(attacker);
+
+            GameObject owner = attacker.GetOwner();
+            if(owner.ObjectType == GameObjectType.Player)
+            {
+                RewardData rewardData = GetRandomReward();
+                if(rewardData != null)
+                {
+                    Player player = (Player)owner;
+                    Server.DB.DbTransaction.RewardPlayer(player, rewardData, Room);
+                    //player.Inven.Add
+                }
+            }
+        }
+
+        RewardData GetRandomReward()
+        {
+            MonsterData monsterData = null;
+            DataManager.MonsterDict.TryGetValue(TemplatedId, out monsterData);
+
+            int rand = new Random().Next(0, 101);
+
+            int sum = 0;
+            foreach (RewardData rewardData in monsterData.rewards)
+            {
+                sum += rewardData.probability;
+                if(rand <= sum)
+                {
+                    return rewardData;
+                }
+            }
+
+            return null;
         }
     }
 }

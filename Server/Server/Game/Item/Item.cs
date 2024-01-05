@@ -43,7 +43,7 @@ namespace Server.Game
             ItemType = itemType;
         }
 
-        public static Item ItemMakeItem(ItemDb itemDb)
+        public static Item MakeItem(ItemDb itemDb)
         {
             Item item = null;
 

@@ -35,8 +35,8 @@ namespace Server.Game
 
         public MoveDir Dir
         {
-            get { return PosInfo.Movedir; }
-            set {  PosInfo.Movedir = value; }
+            get { return PosInfo.MoveDir; }
+            set {  PosInfo.MoveDir = value; }
         }
 
         public CreatureState State
@@ -72,7 +72,7 @@ namespace Server.Game
 
         public Vector2Int GetFrontCellPos()
         {
-            return GetFrontCellPos(PosInfo.Movedir);
+            return GetFrontCellPos(PosInfo.MoveDir);
         }
 
         public Vector2Int GetFrontCellPos(MoveDir dir)
@@ -145,12 +145,19 @@ namespace Server.Game
 
             Stat.Hp = Stat.MaxHp;
             PosInfo.State = CreatureState.Idle;
-            PosInfo.Movedir = MoveDir.Down;
+            PosInfo.MoveDir = MoveDir.Down;
             PosInfo.PosX = 0;
             PosInfo.PosY = 0;
 
 
             room.EnterGame(this);
+        }
+
+
+
+        public virtual GameObject GetOwner()
+        {
+            return this;
         }
     }
 }

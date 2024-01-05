@@ -24,6 +24,7 @@ namespace Server.Game
 
             // TEMP
             Monster monster = ObjectManager.Instance.Add<Monster>();
+            monster.Init(1);
             monster.CellPos = new Vector2Int(5, 5);
             EnterGame(monster);
 
@@ -185,7 +186,7 @@ namespace Server.Game
             }
 
             info.PosInfo.State = movePosInfo.State; ;
-            info.PosInfo.Movedir = movePosInfo.Movedir;
+            info.PosInfo.MoveDir = movePosInfo.MoveDir;
             Map.ApplyMove(player, new Vector2Int(movePosInfo.PosX, movePosInfo.PosY));
 
             // 다른 플레이어한테도 알려준다.
@@ -222,7 +223,7 @@ namespace Server.Game
                 case SkillType.SkillAuto:
                     {
                         //  데미지  판정
-                        Vector2Int skillPos = player.GetFrontCellPos(info.PosInfo.Movedir);
+                        Vector2Int skillPos = player.GetFrontCellPos(info.PosInfo.MoveDir);
                         GameObject target = Map.Find(skillPos);
                         if (target != null)
                         {
@@ -239,7 +240,7 @@ namespace Server.Game
                         arrow.Owner = player;
                         arrow.Data = skillData;
                         arrow.PosInfo.State = CreatureState.Moving;
-                        arrow.PosInfo.Movedir = player.PosInfo.Movedir;
+                        arrow.PosInfo.MoveDir = player.PosInfo.MoveDir;
                         arrow.PosInfo.PosX = player.PosInfo.PosX;
                         arrow.PosInfo.PosY = player.PosInfo.PosY;
                         arrow.Speed = skillData.projectile.speed;
