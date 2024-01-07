@@ -1,12 +1,10 @@
 ﻿using Google.Protobuf;
 using Google.Protobuf.Protocol;
-using Google.Protobuf.WellKnownTypes;
 using Server.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
 
 namespace Server.Game
 {
@@ -25,6 +23,9 @@ namespace Server.Game
 
 		public Map Map { get; private set; } = new Map();
 
+		// ㅁㅁㅁ
+		// ㅁㅁㅁ
+		// ㅁㅁㅁ
 		public Zone GetZone(Vector2Int cellPos)
 		{
 			int x = (cellPos.x - Map.MinX) / ZoneCells;
@@ -43,7 +44,10 @@ namespace Server.Game
 			Map.LoadMap(mapId);
 
 			// Zone
-			ZoneCells = zoneCells;
+			ZoneCells = zoneCells; // 10
+			// 1~10 칸 = 1존
+			// 11~20칸 = 2존
+			// 21~30칸 = 3존
 			int countY = (Map.SizeY + zoneCells - 1) / zoneCells;
 			int countX = (Map.SizeX + zoneCells - 1) / zoneCells;
 			Zones = new Zone[countY, countX];
@@ -56,16 +60,17 @@ namespace Server.Game
 			}
 
 			// TEMP
-			Monster monster = ObjectManager.Instance.Add<Monster>();
-			monster.Init(1);
-			EnterGame(monster, randomPos: true);
-        }
+			for (int i = 0; i < 500; i++)
+			{
+				Monster monster = ObjectManager.Instance.Add<Monster>();
+				monster.Init(1);
+				EnterGame(monster, randomPos: true);
+			}
+		}
 
 		// 누군가 주기적으로 호출해줘야 한다
 		public void Update()
 		{
-
-
 			Flush();
 		}
 
@@ -77,21 +82,18 @@ namespace Server.Game
 
 			if (randomPos)
 			{
-                Vector2Int respawnPos;
-                while (true)
-                {
-                    respawnPos.x = _rand.Next(Map.MinX, Map.MaxX + 1);
-                    respawnPos.y = _rand.Next(Map.MinY, Map.MaxY + 1);
-                    if (Map.Find(respawnPos) == null)
-                    {
-                        gameObject.CellPos = respawnPos;
-                        break;
-                    }
-
-                }
-            }
-
-
+				Vector2Int respawnPos;
+				while (true)
+				{
+					respawnPos.x = _rand.Next(Map.MinX, Map.MaxX + 1);
+					respawnPos.y = _rand.Next(Map.MinY, Map.MaxY + 1);
+					if (Map.Find(respawnPos) == null)
+					{
+						gameObject.CellPos = respawnPos;
+						break;
+					}
+				}
+			}
 
 			GameObjectType type = ObjectManager.GetObjectTypeById(gameObject.Id);
 
@@ -122,7 +124,7 @@ namespace Server.Game
 				monster.Room = this;
 
 				GetZone(monster.CellPos).Monsters.Add(monster);
-                Map.ApplyMove(monster, new Vector2Int(monster.CellPos.x, monster.CellPos.y));
+				Map.ApplyMove(monster, new Vector2Int(monster.CellPos.x, monster.CellPos.y));
 
 				monster.Update();
 			}
@@ -132,10 +134,10 @@ namespace Server.Game
 				_projectiles.Add(gameObject.Id, projectile);
 				projectile.Room = this;
 
-                GetZone(projectile.CellPos).Projectiles.Add(projectile);
-                projectile.Update();
+				GetZone(projectile.CellPos).Projectiles.Add(projectile);
+				projectile.Update();
 			}
-			
+
 			// 타인한테 정보 전송
 			{
 				S_Spawn spawnPacket = new S_Spawn();
@@ -188,14 +190,16 @@ namespace Server.Game
 				Map.ApplyLeave(projectile);
 				projectile.Room = null;
 			}
-			else 
+			else
+			{
 				return;
+			}
 
-            // 타인한테 정보 전송
-            {
+			// 타인한테 정보 전송
+			{
 				S_Despawn despawnPacket = new S_Despawn();
 				despawnPacket.ObjectIds.Add(objectId);
-                Broadcast(cellPos, despawnPacket);
+				Broadcast(cellPos, despawnPacket);
 			}
 		}
 
@@ -212,43 +216,41 @@ namespace Server.Game
 
 		public void Broadcast(Vector2Int pos, IMessage packet)
 		{
-			List<Zone> zones = GetAdjacnetZones(pos);
-			foreach (Player p in zones.SelectMany(z=>z.Players))
+			List<Zone> zones = GetAdjacentZones(pos);
+
+			foreach (Player p in zones.SelectMany(z => z.Players))
 			{
-                int dx = p.CellPos.x - pos.x;
-                int dy = p.CellPos.y - pos.y;
-                if (Math.Abs(dx) > GameRoom.VisionCells)
-                    continue;
-                if (Math.Abs(dy) > GameRoom.VisionCells)
-                    continue;
+				int dx = p.CellPos.x - pos.x;
+				int dy = p.CellPos.y - pos.y;
+				if (Math.Abs(dx) > GameRoom.VisionCells)
+					continue;
+				if (Math.Abs(dy) > GameRoom.VisionCells)
+					continue;
 
-                p.Session.Send(packet);
-            }
-
+				p.Session.Send(packet);
+			}
 		}
 
-		public List<Zone> GetAdjacnetZones(Vector2Int cellPos, int cells = GameRoom.VisionCells)
+		public List<Zone> GetAdjacentZones(Vector2Int cellPos, int cells = GameRoom.VisionCells)
 		{
 			HashSet<Zone> zones = new HashSet<Zone>();
 
 			int[] delta = new int[2] { -cells, +cells };
-
-			foreach (int  dy in delta)
+			foreach (int dy in delta)
 			{
-                foreach (int dx in delta)
-                {
+				foreach (int dx in delta)
+				{
 					int y = cellPos.y + dy;
 					int x = cellPos.x + dx;
-					Zone zone = GetZone(new Vector2Int(y, x));
+					Zone zone = GetZone(new Vector2Int(x, y));
 					if (zone == null)
 						continue;
 
 					zones.Add(zone);
-                }
-            }
+				}
+			}
 
 			return zones.ToList();
 		}
-
 	}
 }

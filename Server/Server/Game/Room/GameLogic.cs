@@ -26,11 +26,11 @@ namespace Server.Game
 			GameRoom gameRoom = new GameRoom();
 			gameRoom.Push(gameRoom.Init, mapId, 10);
 
-            gameRoom.RoomId = _roomId;
-            _rooms.Add(_roomId, gameRoom);
-            _roomId++;
+			gameRoom.RoomId = _roomId;
+			_rooms.Add(_roomId, gameRoom);
+			_roomId++;
 
-            return gameRoom;
+			return gameRoom;
 		}
 
 		public bool Remove(int roomId)

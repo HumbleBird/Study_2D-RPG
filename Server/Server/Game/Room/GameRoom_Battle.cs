@@ -34,7 +34,7 @@ namespace Server.Game
 			resMovePacket.ObjectId = player.Info.ObjectId;
 			resMovePacket.PosInfo = movePacket.PosInfo;
 
-			Broadcast(player.CellPos,resMovePacket);
+			Broadcast(player.CellPos, resMovePacket);
 		}
 
 		public void HandleSkill(Player player, C_Skill skillPacket)

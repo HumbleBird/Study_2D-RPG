@@ -19,11 +19,10 @@ public class ObjectManager
 	{
 		if (MyPlayer != null && MyPlayer.Id == info.ObjectId)
 			return;
-
 		if (_objects.ContainsKey(info.ObjectId))
 			return;
 
-        GameObjectType objectType = GetObjectTypeById(info.ObjectId);
+		GameObjectType objectType = GetObjectTypeById(info.ObjectId);
 		if (objectType == GameObjectType.Player)
 		{
 			if (myPlayer)
@@ -35,8 +34,8 @@ public class ObjectManager
 				MyPlayer = go.GetComponent<MyPlayerController>();
 				MyPlayer.Id = info.ObjectId;
 				MyPlayer.PosInfo = info.PosInfo;
-                MyPlayer.Stat.MergeFrom(info.StatInfo);
-                MyPlayer.SyncPos();
+				MyPlayer.Stat.MergeFrom(info.StatInfo);
+				MyPlayer.SyncPos();
 			}
 			else
 			{
@@ -77,13 +76,13 @@ public class ObjectManager
 	}
 
 	public void Remove(int id)
-    {
-        if (MyPlayer != null && MyPlayer.Id == id)
-            return;
-        if (_objects.ContainsKey(id) == false)
-            return;
+	{
+		if (MyPlayer != null && MyPlayer.Id == id)
+			return;
+		if (_objects.ContainsKey(id) == false)
+			return;
 
-        GameObject go = FindById(id);
+		GameObject go = FindById(id);
 		if (go == null)
 			return;
 

@@ -7,16 +7,15 @@ using UnityEngine.UI;
 public class UI_Inventory_Item : UI_Base
 {
 	[SerializeField]
-	Image _icon;
+	Image _icon = null;
 
 	[SerializeField]
-	Image _frame;
+	Image _frame = null;
 
 	public int ItemDbId { get; private set; }
 	public int TemplateId { get; private set; }
 	public int Count { get; private set; }
 	public bool Equipped { get; private set; }
-
 
 	public override void Init()
 	{
@@ -24,16 +23,16 @@ public class UI_Inventory_Item : UI_Base
 		{
 			Debug.Log("Click Item");
 
-            Data.ItemData itemData = null;
-            Managers.Data.ItemDict.TryGetValue(TemplateId, out itemData);
-
+			Data.ItemData itemData = null;
+			Managers.Data.ItemDict.TryGetValue(TemplateId, out itemData);
 			if (itemData == null)
 				return;
 
+			// TODO : C_USE_ITEM 아이템 사용 패킷
 			if (itemData.itemType == ItemType.Consumable)
 				return;
 
-            C_EquipItem equipPacket = new C_EquipItem();
+			C_EquipItem equipPacket = new C_EquipItem();
 			equipPacket.ItemDbId = ItemDbId;
 			equipPacket.Equipped = !Equipped;
 
@@ -43,7 +42,7 @@ public class UI_Inventory_Item : UI_Base
 
 	public void SetItem(Item item)
 	{
-		if(item == null)
+		if (item == null)
 		{
 			ItemDbId = 0;
 			TemplateId = 0;
@@ -55,19 +54,19 @@ public class UI_Inventory_Item : UI_Base
 		}
 		else
 		{
-            ItemDbId = item.ItemDbId;
-            TemplateId = item.TemplateId;
-            Count = item.Count;
-            Equipped = item.Equipped;
+			ItemDbId = item.ItemDbId;
+			TemplateId = item.TemplateId;
+			Count = item.Count;
+			Equipped = item.Equipped;
 
-            Data.ItemData itemData = null;
-            Managers.Data.ItemDict.TryGetValue(TemplateId, out itemData);
+			Data.ItemData itemData = null;
+			Managers.Data.ItemDict.TryGetValue(TemplateId, out itemData);
 
-            Sprite icon = Managers.Resource.Load<Sprite>(itemData.iconPath);
-            _icon.sprite = icon;
+			Sprite icon = Managers.Resource.Load<Sprite>(itemData.iconPath);
+			_icon.sprite = icon;
 
-            _icon.gameObject.SetActive(true);
-            _frame.gameObject.SetActive(Equipped);
-        }
+			_icon.gameObject.SetActive(true);
+			_frame.gameObject.SetActive(Equipped);
+		}
 	}
 }

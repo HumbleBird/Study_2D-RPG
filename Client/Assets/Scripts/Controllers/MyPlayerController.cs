@@ -1,5 +1,4 @@
 ﻿using Google.Protobuf.Protocol;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,8 +8,8 @@ public class MyPlayerController : PlayerController
 {
 	bool _moveKeyPressed = false;
 
-	public int WeaponDamage {  get; private set; }
-	public int ArmorDefence {  get; private set; }
+	public int WeaponDamage { get; private set; }
+	public int ArmorDefence { get; private set; }
 
 	protected override void Init()
 	{
@@ -20,7 +19,7 @@ public class MyPlayerController : PlayerController
 
 	protected override void UpdateController()
 	{
-        GetUIKeyInput();
+		GetUIKeyInput();
 
 		switch (State)
 		{
@@ -70,40 +69,40 @@ public class MyPlayerController : PlayerController
 
 	void GetUIKeyInput()
 	{
-		if(Input.GetKey(KeyCode.I))
+		if (Input.GetKeyDown(KeyCode.I))
 		{
-            UI_GameScene gameSceneUI = Managers.UI.SceneUI as UI_GameScene;
-            UI_Inventory invenUI = gameSceneUI.InvenUI;
+			UI_GameScene gameSceneUI = Managers.UI.SceneUI as UI_GameScene;
+			UI_Inventory invenUI = gameSceneUI.InvenUI;
 
 			if (invenUI.gameObject.activeSelf)
-			{ 
+			{
 				invenUI.gameObject.SetActive(false);
 			}
 			else
 			{
-                invenUI.gameObject.SetActive(true);
+				invenUI.gameObject.SetActive(true);
 				invenUI.RefreshUI();
-            }
-        }
-		else if (Input.GetKey(KeyCode.C))
-        {
-            UI_GameScene gameSceneUI = Managers.UI.SceneUI as UI_GameScene;
-            UI_Stat statUI = gameSceneUI.StatUI;
+			}
+		}
+		else if (Input.GetKeyDown(KeyCode.C))
+		{
+			UI_GameScene gameSceneUI = Managers.UI.SceneUI as UI_GameScene;
+			UI_Stat statUI = gameSceneUI.StatUI;
 
-            if (statUI.gameObject.activeSelf)
-            {
-                statUI.gameObject.SetActive(false);
-            }
-            else
-            {
-                statUI.gameObject.SetActive(true);
-                statUI.RefreshUI();
-            }
-        }
-    }
+			if (statUI.gameObject.activeSelf)
+			{
+				statUI.gameObject.SetActive(false);
+			}
+			else
+			{
+				statUI.gameObject.SetActive(true);
+				statUI.RefreshUI();
+			}
+		}
+	}
 
-    // 키보드 입력
-    void GetDirInput()
+	// 키보드 입력
+	void GetDirInput()
 	{
 		_moveKeyPressed = true;
 
@@ -178,25 +177,25 @@ public class MyPlayerController : PlayerController
 		}
 	}
 
-    public void RefreshAdditionalStat()
-    {
-        WeaponDamage = 0;
-        ArmorDefence = 0;
+	public void RefreshAdditionalStat()
+	{
+		WeaponDamage = 0;
+		ArmorDefence = 0;
 
-        foreach (Item item in Managers.Inven.Items.Values)
-        {
-            if (item.Equipped == false)
-                continue;
+		foreach (Item item in Managers.Inven.Items.Values)
+		{
+			if (item.Equipped == false)
+				continue;
 
-            switch (item.ItemType)
-            {
-                case ItemType.Weapon:
-                    WeaponDamage += ((Weapon)item).Damage;
-                    break;
-                case ItemType.Armor:
-                    ArmorDefence += ((Armor)item).Defence;
-                    break;
-            }
-        }
-    }
+			switch (item.ItemType)
+			{
+				case ItemType.Weapon:
+					WeaponDamage += ((Weapon)item).Damage;
+					break;
+				case ItemType.Armor:
+					ArmorDefence += ((Armor)item).Defence;
+					break;
+			}
+		}
+	}
 }

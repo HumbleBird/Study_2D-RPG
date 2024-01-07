@@ -139,6 +139,4 @@ public class PlayerController : CreatureController
 	{
 		Debug.Log("Player HIT !");
 	}
-
-
 }

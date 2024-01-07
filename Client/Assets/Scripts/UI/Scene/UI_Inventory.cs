@@ -23,8 +23,7 @@ public class UI_Inventory : UI_Base
 		}
 
 		RefreshUI();
-
-    }
+	}
 
 	public void RefreshUI()
 	{

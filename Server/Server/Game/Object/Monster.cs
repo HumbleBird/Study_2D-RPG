@@ -48,8 +48,9 @@ namespace Server.Game
 					break;
 			}
 
+			// 5프레임 (0.2초마다 한번씩 Update)
 			if (Room != null)
-                _job = Room.PushAfter(200, Update);
+				_job = Room.PushAfter(200, Update);
 		}
 
 		Player _target;
@@ -103,7 +104,7 @@ namespace Server.Game
 				return;
 			}
 
-			List<Vector2Int> path = Room.Map.FindPath(CellPos, _target.CellPos, checkObjects: false);
+			List<Vector2Int> path = Room.Map.FindPath(CellPos, _target.CellPos, checkObjects: true);
 			if (path.Count < 2 || path.Count > _chaseCellDist)
 			{
 				_target = null;
@@ -197,14 +198,14 @@ namespace Server.Game
 		}
 
 		public override void OnDead(GameObject attacker)
-        {
-            if (_job != null)
-            {
-                _job.Cancel = true;
-                _job = null;
-            }
+		{
+			if (_job != null)
+			{
+				_job.Cancel = true;
+				_job = null;
+			}
 
-            base.OnDead(attacker);
+			base.OnDead(attacker);
 
 			GameObject owner = attacker.GetOwner();
 			if (owner.ObjectType == GameObjectType.Player)
