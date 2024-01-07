@@ -133,6 +133,10 @@ namespace Server.Game
 			if (posInfo.PosY < MinY || posInfo.PosY > MaxY)
 				return false;
 
+			// Zone
+			Zone zone = gameObject.Room.GetZone(gameObject.CellPos);
+			zone.Remove(gameObject);
+
 			{
 				int x = posInfo.PosX - MinX;
 				int y = MaxY - posInfo.PosY;
@@ -143,9 +147,8 @@ namespace Server.Game
 			return true;
 		}
 
-		public bool ApplyMove(GameObject gameObject, Vector2Int dest)
+		public bool ApplyMove(GameObject gameObject, Vector2Int dest, bool checkObjects = true, bool collision = true)
 		{
-			ApplyLeave(gameObject);
 
 			if (gameObject.Room == null)
 				return false;
@@ -153,14 +156,67 @@ namespace Server.Game
 				return false;
 
 			PositionInfo posInfo = gameObject.PosInfo;
-			if (CanGo(dest, true) == false)
+			if (CanGo(dest, checkObjects) == false)
 				return false;
 
+			if(collision)
 			{
-				int x = dest.x - MinX;
-				int y = MaxY - dest.y;
-				_objects[y, x] = gameObject;
+				{
+                    int x = dest.x - MinX;
+                    int y = MaxY - dest.y;
+                    _objects[y, x] = gameObject;
+                }
+				{
+                    int x = posInfo.PosX - MinX;
+                    int y = MaxY - posInfo.PosY;
+                    if (_objects[y, x] == gameObject)
+                        _objects[y, x] = null;
+                }
+
 			}
+
+            GameObjectType type = ObjectManager.GetObjectTypeById(gameObject.Id);
+			if(type == GameObjectType.Player)
+			{
+                Player p = (Player)gameObject;
+
+                Zone now = gameObject.Room.GetZone(gameObject.CellPos);
+                Zone after = gameObject.Room.GetZone(dest);
+
+                if (now != after)
+                {
+                    now.Players.Remove(p);
+                    after.Players.Add(p);
+                }
+            }
+			else if (type == GameObjectType.Monster)
+            {
+                Monster p = (Monster)gameObject;
+
+                Zone now = gameObject.Room.GetZone(gameObject.CellPos);
+                Zone after = gameObject.Room.GetZone(dest);
+
+                if (now != after)
+                {
+                    now.Monsters.Remove(p);
+                    after.Monsters.Add(p);
+                }
+            }
+			else if (type == GameObjectType.Projectile)
+            {
+                Projectile p = (Projectile)gameObject;
+
+                Zone now = gameObject.Room.GetZone(gameObject.CellPos);
+                Zone after = gameObject.Room.GetZone(dest);
+
+                if (now != after)
+                {
+                    now.Projectiles.Remove(p);
+                    after.Projectiles.Add(p);
+                }
+            }
+
+            
 
 			// 실제 좌표 이동
 			posInfo.PosX = dest.x;
