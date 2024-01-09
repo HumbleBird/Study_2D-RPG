@@ -18,7 +18,7 @@ public class Managers : MonoBehaviour
     public static MapManager Map { get { return Instance._map; } }
     public static ObjectManager Object { get { return Instance._obj; } }
     public static NetworkManager Network { get { return Instance._network; } }
-    public static WebManager Web { get {  return Instance._web; } }
+    public static WebManager Web { get { return Instance._web; } }
 	#endregion
 
 	#region Core
@@ -61,7 +61,6 @@ public class Managers : MonoBehaviour
             DontDestroyOnLoad(go);
             s_instance = go.GetComponent<Managers>();
 
-            s_instance._network.Init();
             s_instance._data.Init();
             s_instance._pool.Init();
             s_instance._sound.Init();
