@@ -2,7 +2,6 @@
 using Google.Protobuf.Protocol;
 using Server.Data;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,7 +30,6 @@ namespace Server.Game
 		{
 			int x = (cellPos.x - Map.MinX) / ZoneCells;
 			int y = (Map.MaxY - cellPos.y) / ZoneCells;
-
 			return GetZone(y, x);
 		}
 
@@ -220,11 +218,12 @@ namespace Server.Game
 			return null;
 		}
 
-		public Player FindClosetPlayer(Vector2Int pos, int range)
+		// 살짝 부담스러운 함수
+		public Player FindClosestPlayer(Vector2Int pos, int range)
 		{
 			List<Player> players = GetAdjacentPlayers(pos, range);
 
-			players.Sort ((left, right) =>
+			players.Sort((left, right) =>
 			{
 				int leftDist = (left.CellPos - pos).cellDistFromZero;
 				int rightDist = (right.CellPos - pos).cellDistFromZero;
@@ -233,12 +232,12 @@ namespace Server.Game
 
 			foreach (Player player in players)
 			{
-                List<Vector2Int> path = Map.FindPath(pos, player.CellPos, checkObjects: true);
-                if (path.Count < 2 || path.Count > range)
+				List<Vector2Int> path = Map.FindPath(pos, player.CellPos, checkObjects: true);
+				if (path.Count < 2 || path.Count > range)
 					continue;
 
 				return player;
-            }
+			}
 
 			return null;
 		}
@@ -266,6 +265,10 @@ namespace Server.Game
 			return zones.SelectMany(z => z.Players).ToList();
 		}
 
+		// ㅁㅁㅁㅁㅁㅁ
+		// ㅁㅁㅁㅁㅁㅁ
+		// ㅁㅁㅁㅁㅁㅁ
+		// ㅁㅁㅁㅁㅁㅁ
 		public List<Zone> GetAdjacentZones(Vector2Int cellPos, int range = GameRoom.VisionCells)
 		{
 			HashSet<Zone> zones = new HashSet<Zone>();
@@ -275,14 +278,15 @@ namespace Server.Game
 			int maxX = cellPos.x + range;
 			int minX = cellPos.x - range;
 
+			// 좌측 상단
 			Vector2Int leftTop = new Vector2Int(minX, maxY);
-            int minIndexY = (Map.MaxY - leftTop.y) / ZoneCells;
-            int minIndexX = (leftTop.x - Map.MinX) / ZoneCells;
-
-
-            Vector2Int rightBot = new Vector2Int(maxX, minY);
-            int maxIndexY = (Map.MaxY - rightBot.y) / ZoneCells;
-            int maxIndexX = (rightBot.x - Map.MinX) / ZoneCells;
+			int minIndexY = (Map.MaxY - leftTop.y) / ZoneCells;
+			int minIndexX = (leftTop.x - Map.MinX) / ZoneCells;
+			
+			// 우측 하단
+			Vector2Int rightBot = new Vector2Int(maxX, minY);
+			int maxIndexY = (Map.MaxY - rightBot.y) / ZoneCells;
+			int maxIndexX = (rightBot.x - Map.MinX) / ZoneCells;
 
 			for (int x = minIndexX; x <= maxIndexX; x++)
 			{
@@ -295,7 +299,6 @@ namespace Server.Game
 					zones.Add(zone);
 				}
 			}
-
 
 			return zones.ToList();
 		}

@@ -39,36 +39,35 @@ namespace ServerCore
 
 			try
 			{
-                bool pending = socket.ConnectAsync(args);
-                if (pending == false)
-                    OnConnectCompleted(null, args);
-            }
+				bool pending = socket.ConnectAsync(args);
+				if (pending == false)
+					OnConnectCompleted(null, args);
+			}
 			catch (Exception e)
 			{
-                Console.WriteLine(e);
-            }
-
-        }
+				Console.WriteLine(e);
+			}
+		}
 
 		void OnConnectCompleted(object sender, SocketAsyncEventArgs args)
 		{
-            try
-            {
-                if (args.SocketError == SocketError.Success)
-                {
-                    Session session = _sessionFactory.Invoke();
-                    session.Start(args.ConnectSocket);
-                    session.OnConnected(args.RemoteEndPoint);
-                }
-                else
-                {
-                    Console.WriteLine($"OnConnectCompleted Fail: {args.SocketError}");
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+			try
+			{
+				if (args.SocketError == SocketError.Success)
+				{
+					Session session = _sessionFactory.Invoke();
+					session.Start(args.ConnectSocket);
+					session.OnConnected(args.RemoteEndPoint);
+				}
+				else
+				{
+					Console.WriteLine($"OnConnectCompleted Fail: {args.SocketError}");
+				}
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e);
+			}
 		}
 	}
 }

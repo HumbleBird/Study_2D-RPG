@@ -14,28 +14,28 @@ namespace AccountServer.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.17")
+                .HasAnnotation("ProductVersion", "3.1.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("AccountServer.DB.DataModel+AccountDb", b =>
+            modelBuilder.Entity("AccountServer.DB.AccountDb", b =>
                 {
                     b.Property<int>("AccountDbId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("AccountName")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("LoginProviderType")
+                        .HasColumnType("int");
 
-                    b.Property<string>("Password")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("LoginProviderUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("AccountDbId");
 
-                    b.HasIndex("AccountName")
-                        .IsUnique()
-                        .HasFilter("[AccountName] IS NOT NULL");
+                    b.HasIndex("LoginProviderUserId", "LoginProviderType")
+                        .IsUnique();
 
                     b.ToTable("Account");
                 });

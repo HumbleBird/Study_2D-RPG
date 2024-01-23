@@ -1,5 +1,4 @@
 ﻿using Server.DB;
-using SharedDB;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -20,18 +19,6 @@ namespace Server
 				return false;
 			}
 		}
-
-		public static bool SaveChangesEx(this SharedDbContext db)
-		{
-			try
-			{
-				db.SaveChanges();
-				return true;
-			}
-			catch
-			{
-				return false;
-			}
-		}
+	
 	}
 }

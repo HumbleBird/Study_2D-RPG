@@ -78,16 +78,16 @@ namespace Server
 
 			lock (_lock)
 			{
-
 				// 0.1초가 지났거나, 너무 패킷이 많이 모일 때 (1만 바이트)
 				long delta = (System.Environment.TickCount64 - _lastSendTick);
 				if (delta < 100 && _reservedSendBytes < 10000)
 					return;
 
+				// 패킷 모아 보내기
 				_reservedSendBytes = 0;
 				_lastSendTick = System.Environment.TickCount64;
 
-                sendList = _reserveQueue;
+				sendList = _reserveQueue;
 				_reserveQueue = new List<ArraySegment<byte>>();
 			}
 

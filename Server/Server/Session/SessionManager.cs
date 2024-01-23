@@ -14,18 +14,19 @@ namespace Server
 		Dictionary<int, ClientSession> _sessions = new Dictionary<int, ClientSession>();
 		object _lock = new object();
 
-        public int GetBusyScore()
-        {
-            int count = 0;
-            lock (_lock)
-            {
-                count = _sessions.Count;
-            }
+		public int GetBusyScore()
+		{
+			int count = 0;
 
-            return count / 100;
-        }
+			lock (_lock)
+			{
+				count = _sessions.Count;
+			}
 
-        public List<ClientSession> GetSessions()
+			return count / 100;
+		}
+
+		public List<ClientSession> GetSessions()
 		{
 			List<ClientSession> sessions = new List<ClientSession>();
 
@@ -47,10 +48,9 @@ namespace Server
 				session.SessionId = sessionId;
 				_sessions.Add(sessionId, session);
 
-                Console.WriteLine($"Connected ({_sessions.Count}) Players");
+				Console.WriteLine($"Connected ({_sessions.Count}) Players");
 
-
-                return session;
+				return session;
 			}
 		}
 
@@ -69,8 +69,8 @@ namespace Server
 			lock (_lock)
 			{
 				_sessions.Remove(session.SessionId);
-                Console.WriteLine($"Connected ({_sessions.Count}) Players");
-            }
-        }
+				Console.WriteLine($"Connected ({_sessions.Count}) Players");
+			}
+		}
 	}
 }

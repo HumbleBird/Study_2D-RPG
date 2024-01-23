@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Facebook.Unity;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -27,6 +28,8 @@ public class UI_LoginScene : UI_Scene
 
 		GetImage((int)Images.CreateBtn).gameObject.BindEvent(OnClickCreateButton);
 		GetImage((int)Images.LoginBtn).gameObject.BindEvent(OnClickLoginButton);
+
+		FB.Init("1154364022195749", "d1dc87756aa0f34235c361f335af36b3");
 	}
 
 	public void OnClickCreateButton(PointerEventData evt)
@@ -55,27 +58,23 @@ public class UI_LoginScene : UI_Scene
 		string account = Get<GameObject>((int)GameObjects.AccountName).GetComponent<InputField>().text;
 		string password = Get<GameObject>((int)GameObjects.Password).GetComponent<InputField>().text;
 
+		FB.LogInWithPublishPermissions(new List<string>() { "email" }, OnFacebookResponse);
+	}
 
-		LoginAccountPacketReq packet = new LoginAccountPacketReq()
+	public void OnFacebookResponse(ILoginResult result)
+	{
+		Debug.Log("Connected FB");
+
+		LoginFacebookAccountPacketReq packet = new LoginFacebookAccountPacketReq()
 		{
-			AccountName = account,
-			Password = password
+			Token = result.AccessToken.TokenString
 		};
 
-		Managers.Web.SendPostRequest<LoginAccountPacketRes>("account/login", packet, (res) =>
+		Managers.Web.SendPostRequest<LoginFacebookAccountPacketRes>("account/login/facebook", packet, (res) =>
 		{
-			Debug.Log(res.LoginOk);
-			Get<GameObject>((int)GameObjects.AccountName).GetComponent<InputField>().text = "";
-			Get<GameObject>((int)GameObjects.Password).GetComponent<InputField>().text = "";
+			Debug.Log(res.LoginOK);
 
-			if (res.LoginOk)
-			{
-				Managers.Network.AccountId = res.AccountId;
-                Managers.Network.Token = res.Token;
-
-				UI_SelectServerPopup popup = Managers.UI.ShowPopupUI<UI_SelectServerPopup>();
-				popup.SetServers(res.ServerList);
-			}
+			// TODO
 		});
 	}
 }

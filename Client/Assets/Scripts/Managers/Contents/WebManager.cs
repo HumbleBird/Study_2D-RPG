@@ -21,8 +21,8 @@ public class WebManager
 		byte[] jsonBytes = null;
 		if (obj != null)
 		{
-            string jsonStr = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
-            jsonBytes = Encoding.UTF8.GetBytes(jsonStr);
+			string jsonStr = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
+			jsonBytes = Encoding.UTF8.GetBytes(jsonStr);
 		}
 
 		using (var uwr = new UnityWebRequest(sendUrl, method))

@@ -10,6 +10,7 @@ public class NetworkManager
 {
 	public int AccountId { get; set; }
 	public int Token { get; set; }
+
 	ServerSession _session = new ServerSession();
 
 	public void Send(IMessage packet)
@@ -19,10 +20,8 @@ public class NetworkManager
 
 	public void ConnectToGame(ServerInfo info)
 	{
-		// DNS (Domain Name System)
-
-		IPAddress ipAddr = IPAddress.Parse(info.IPAddress);
-        IPEndPoint endPoint = new IPEndPoint(ipAddr, info.Port);
+		IPAddress ipAddr = IPAddress.Parse(info.IpAddress);
+		IPEndPoint endPoint = new IPEndPoint(ipAddr, info.Port);
 
 		Connector connector = new Connector();
 

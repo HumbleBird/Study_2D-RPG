@@ -1,118 +1,42 @@
-﻿using AccountServer.DB;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AccountServer.DB;
+using AccountServer.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SharedDB;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using static AccountServer.DB.DataModel;
 
 namespace AccountServer.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class AccountController : ControllerBase
-    {
-        AppDbContext _context;
-        SharedDbContext _shared;
+	[Route("api/[controller]")]
+	[ApiController]
+	public class AccountController : ControllerBase
+	{
+		AccountService _account;
 
-        public AccountController(AppDbContext context, SharedDbContext shared)
-        {
-            _context = context;
-            _shared = shared;
-        }
+		public AccountController(AccountService account)
+		{
+			_account = account;
+		}
 
-        [HttpPost]
-        [Route("create")]
-        public CreateAccountPacketRes CreateAccount([FromBody] CreateAccountPacketReq req)
-        {
-            CreateAccountPacketRes res = new CreateAccountPacketRes();
+		[HttpPost]
+		[Route("login/facebook")]
+		public async Task<LoginFacebookAccountPacketRes> LoginAccount([FromBody] LoginFacebookAccountPacketReq req)
+		{
+			LoginFacebookAccountPacketRes res = new LoginFacebookAccountPacketRes();
 
-            AccountDb account = _context.Accounts
-                .AsNoTracking()
-                .Where(a => a.AccountName == req.AccountName)
-                .FirstOrDefault();
+			string jwtToken = await _account.LoginFacebookAccount(req.Token);
+			if (string.IsNullOrEmpty(jwtToken))
+			{
+				res.LoginOk = false;
+				return res;
+			}
 
-            if(account == null)
-            {
-                _context.Accounts.Add(new AccountDb()
-                {
-                    AccountName = req.AccountName,
-                    Password = req.Password,
-                });
-
-                bool success =_context.SaveChangesEx();
-                res.CreateOk = true;
-            }
-            else
-            {
-                res.CreateOk = false;
-            }
-
-            return res;
-        }
-
-        [HttpPost]
-        [Route("login")]
-        public LoginAccountPacketRes LoginAccount([FromBody] LoginAccountPacketReq req)
-        {
-            LoginAccountPacketRes res = new LoginAccountPacketRes();
-
-            AccountDb account = _context.Accounts
-                .AsNoTracking()
-                .Where(a => a.AccountName == req.AccountName && a.Password == req.Password)
-                .FirstOrDefault();
-
-            if (account == null)
-            {
-                res.LoginOk= false;
-            }
-            else
-            {
-                res.LoginOk= true;
-
-                // 토큰 발급
-                DateTime expired = DateTime.UtcNow;
-                expired.AddSeconds(600);
-
-                TokenDb tokenDb = _shared.Tokens.Where(t => t.AccountDbId == account.AccountDbId).FirstOrDefault();
-                if (tokenDb != null)
-                {
-                    tokenDb.Token = new Random().Next(Int32.MinValue, Int32.MaxValue);
-                    tokenDb.Expired = expired;
-                    _shared.SaveChangesEx();
-                }
-                else
-                {
-                    tokenDb = new TokenDb()
-                    {
-                        AccountDbId = account.AccountDbId,
-                        Token = new Random().Next(Int32.MinValue, Int32.MaxValue),
-                        Expired = expired
-                    };
-
-                    _shared.Add(tokenDb);
-                    _shared.SaveChangesEx();
-                }
-
-                res.AccountId = account.AccountDbId;
-                res.Token = tokenDb.Token;
-                res.ServerList = new List<ServerInfo>();
-
-                foreach (ServerDb serverDb in _shared.Servers)
-                {
-                    res.ServerList.Add(new ServerInfo()
-                    {
-                        Name = serverDb.Name,
-                        IPAddress = serverDb.IpAddress,
-                        Port = serverDb.Port,
-                        BusyScore = serverDb.BusyScore
-                    });
-                }
-            }
-
-            return res;
-        }
-    }
+			res.LoginOk = true;
+			res.JwtAccessToken = jwtToken;
+			return res;
+		}
+	}
 }

@@ -19,19 +19,30 @@ public class LoginAccountPacketReq
 	public string Password;
 }
 
+
 public class ServerInfo
 {
-    public string Name ;
-    public string IPAddress ;
-    public int Port ;
-    public int BusyScore ;
+	public string Name;
+	public string IpAddress;
+	public int Port;
+	public int BusyScore;
 }
 
 public class LoginAccountPacketRes
 {
-    public bool LoginOk ;
-    public int AccountId ;
-    public int Token ;
-    public List<ServerInfo> ServerList  = new List<ServerInfo>();
+	public bool LoginOk;
+	public int AccountId;
+	public int Token;
+	public List<ServerInfo> ServerList = new List<ServerInfo>();
 }
 
+public class LoginFacebookAccountPacketReq
+{
+	public string Token;
+}
+
+public class LoginFacebookAccountPacketRes
+{
+	public bool LoginOK;
+	public string JwtAccessToken;
+}
